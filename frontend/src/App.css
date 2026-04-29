@@ -1,14 +1,18 @@
 /* Pink Theme Variables */
 :root {
-  --primary-pink: #fdb2c8;
-  --light-pink: #fdd6e3;
-  --pale-pink: #fef1f4;
-  --dark-pink: #e91e63;
-  --text-dark: #333;
-  --text-light: #666;
+  --primary-pink: #ffb7c5;
+  --light-pink: #ffe4e1;
+  --pale-pink: #fff0f5;
+  --dark-pink: #ff6b81;
+  --accent-pink: #ff4757;
+  --text-dark: #2f3542;
+  --text-light: #747d8c;
   --white: #ffffff;
-  --shadow: 0 2px 10px rgba(0,0,0,0.1);
-  --border-radius: 12px;
+  --shadow: 0 10px 30px rgba(255, 107, 129, 0.15);
+  --soft-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  --border-radius: 16px;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 * {
@@ -45,11 +49,15 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 15px 40px;
-  background: var(--white);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: var(--glass-border);
   box-shadow: var(--shadow);
-  margin: 10px 10px 0 10px;
+  margin: 15px 20px 0 20px;
   border-radius: var(--border-radius);
   flex-shrink: 0;
+  z-index: 100;
 }
 
 .nav-brand a {
@@ -305,19 +313,22 @@ body {
 
 /* Customize Page */
 .customize-page {
-  padding: 40px;
+  padding: 30px 40px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
 .customize-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
 .customize-header h1 {
-  font-size: 36px;
+  font-size: 42px;
+  font-weight: 800;
   color: var(--text-dark);
+  text-transform: lowercase;
+  letter-spacing: -1px;
 }
 
 .customize-content {
@@ -330,52 +341,78 @@ body {
 .preview-section {
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .photo-preview {
   background: var(--white);
-  border-radius: var(--border-radius);
-  padding: 20px;
+  border-radius: 24px;
+  padding: 25px;
   box-shadow: var(--shadow);
+  transform: rotate(-1deg);
+  transition: transform 0.3s ease;
+}
+
+.photo-preview:hover {
+  transform: rotate(0deg) scale(1.02);
 }
 
 .photo-frame {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 15px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: visible; /* Allow stickers to overlap edges */
 }
 
 .photo-slot.large {
-  width: 200px;
-  height: 120px;
-  background: #f0f0f0;
+  width: 240px;
+  height: 180px;
+  background: var(--white);
   border-radius: 8px;
-  border: 2px solid #ddd;
+  border: none;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+  position: relative;
 }
 
 .preview-footer {
   text-align: center;
-  font-size: 12px;
-  color: var(--text-light);
-  font-weight: bold;
+  font-size: 14px;
+  color: var(--text-dark);
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 10px;
 }
 
 .options-section {
-  background: var(--white);
-  border-radius: var(--border-radius);
-  padding: 30px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: var(--glass-border);
+  border-radius: 24px;
+  padding: 35px;
   box-shadow: var(--shadow);
 }
 
 .option-group {
-  margin-bottom: 40px;
+  margin-bottom: 35px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-bottom: 25px;
+}
+
+.option-group:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .option-group h3 {
-  font-size: 20px;
-  margin-bottom: 20px;
+  font-size: 18px;
+  margin-bottom: 15px;
   color: var(--text-dark);
+  font-weight: 700;
 }
 
 .color-grid {
@@ -406,25 +443,33 @@ body {
 
 .shape-option {
   padding: 15px;
-  background: #f8f8f8;
-  border: 2px solid #eee;
-  border-radius: 8px;
+  background: var(--white);
+  border: 2px solid transparent;
+  box-shadow: var(--soft-shadow);
+  border-radius: 12px;
   cursor: pointer;
-  transition: border-color 0.3s;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.shape-option:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
 }
 
 .shape-option.selected {
   border-color: var(--dark-pink);
+  background: var(--pale-pink);
 }
 
 .shape-preview {
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   background: var(--text-light);
+  transition: all 0.3s;
 }
 
 .shape-preview.square {
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .shape-preview.circle {
@@ -432,30 +477,40 @@ body {
 }
 
 .shape-preview.heart {
-  border-radius: 50% 50% 0 0;
-  transform: rotate(45deg);
+  background-color: var(--text-light);
+  position: relative;
+  width: 35px;
+  height: 35px;
+  clip-path: path('M17.5 32.5C17.5 32.5 4.5 22.5 4.5 12.5C4.5 7.5 8.5 4.5 12.5 4.5C15.5 4.5 17.5 7.5 17.5 7.5C17.5 7.5 19.5 4.5 22.5 4.5C26.5 4.5 30.5 7.5 30.5 12.5C30.5 22.5 17.5 32.5 17.5 32.5Z');
 }
 
 .stickers-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+  gap: 12px;
   margin-bottom: 20px;
 }
 
 .sticker-option {
   position: relative;
-  width: 50px;
-  height: 50px;
-  background: #f8f8f8;
-  border: 2px solid #eee;
-  border-radius: 8px;
+  width: 55px;
+  height: 55px;
+  background: var(--white);
+  border: 2px solid transparent;
+  box-shadow: var(--soft-shadow);
+  border-radius: 12px;
   cursor: pointer;
-  transition: border-color 0.3s;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.sticker-option:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
 }
 
 .sticker-option.selected {
   border-color: var(--dark-pink);
+  background: var(--pale-pink);
 }
 
 .new-badge {
@@ -507,19 +562,26 @@ body {
 }
 
 .btn-primary, .btn-secondary, .btn-retake, .btn-done {
-  padding: 15px 30px;
-  border-radius: 50px;
+  padding: 14px 32px;
+  border-radius: 30px;
   text-decoration: none;
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 700;
   border: none;
   cursor: pointer;
-  transition: transform 0.3s;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: var(--soft-shadow);
 }
 
 .btn-primary {
-  background: var(--dark-pink);
+  background: linear-gradient(135deg, var(--dark-pink), var(--accent-pink));
   color: white;
+  box-shadow: 0 4px 15px rgba(255, 107, 129, 0.4);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 8px 25px rgba(255, 107, 129, 0.5);
+  transform: translateY(-3px);
 }
 
 .btn-secondary, .btn-retake {
@@ -640,17 +702,28 @@ body {
 
 .step-indicator {
   text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 25px;
   color: var(--text-dark);
+  background: var(--glass-bg);
+  display: inline-block;
+  padding: 8px 25px;
+  border-radius: 30px;
+  box-shadow: var(--soft-shadow);
+  border: var(--glass-border);
 }
 
 .capture-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
+  background: var(--glass-bg);
+  padding: 15px 25px;
+  border-radius: 20px;
+  box-shadow: var(--soft-shadow);
+  border: var(--glass-border);
 }
 
 .upload-btn {
@@ -678,10 +751,12 @@ body {
 
 .webcam-container {
   background: #000;
-  border-radius: var(--border-radius);
+  border-radius: 24px;
   overflow: hidden;
   aspect-ratio: 4/3;
   position: relative;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+  border: 4px solid var(--white);
 }
 
 .webcam-wrapper {
@@ -737,11 +812,13 @@ body {
 .thumbnail {
   width: 100%;
   aspect-ratio: 4/3;
-  background: #f0f0f0;
-  border: 3px solid #ddd;
-  border-radius: 8px;
+  background: var(--white);
+  border: 3px solid transparent;
+  border-radius: 16px;
   overflow: hidden;
   position: relative;
+  box-shadow: var(--soft-shadow);
+  transition: all 0.3s;
 }
 
 .thumbnail.filled {
@@ -767,19 +844,24 @@ body {
 }
 
 .btn-capture {
-  width: 80px;
-  height: 80px;
+  width: 85px;
+  height: 85px;
   border-radius: 50%;
-  background: var(--dark-pink);
+  background: linear-gradient(135deg, var(--dark-pink), var(--accent-pink));
   color: white;
-  border: none;
+  border: 4px solid var(--white);
   font-size: 32px;
   cursor: pointer;
-  transition: transform 0.3s;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 25px rgba(255, 107, 129, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-capture:hover {
-  transform: scale(1.1);
+.btn-capture:hover:not(:disabled) {
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 12px 30px rgba(255, 107, 129, 0.5);
 }
 
 /* Preview Layout */
@@ -885,7 +967,7 @@ body {
 }
 
 .btn-primary {
-  background: var(--dark-pink);
+  background: linear-gradient(135deg, var(--dark-pink), var(--accent-pink));
   color: white;
 }
 
@@ -894,17 +976,16 @@ body {
   color: white;
 }
 
-/* Sticker styles */
 .sticker-preview {
-  width: 30px;
-  height: 30px;
-  background: var(--primary-pink);
+  width: 35px;
+  height: 35px;
+  background: transparent;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  color: white;
+  font-size: 24px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
 .sticker-preview.star::after { content: '⭐'; }
@@ -958,15 +1039,16 @@ body {
 }
 
 .sticker-overlay {
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-  background: rgba(255,255,255,0.8);
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.25));
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  font-size: 32px;
+  pointer-events: none;
+  transition: transform 0.2s;
+  z-index: 20;
 }
 
 /* Responsive */

@@ -113,15 +113,22 @@ export default function CustomizePage({
                            borderRadius: selectedShape === 'circle' ? '50%' : selectedShape === 'heart' ? '50% 50% 0 0' : '8px'
                          }}
                        />
-                       {/* Apply selected stickers on the frame */}
-                       {selectedStickers.slice(0, 1).map((sticker, stickerIndex) => {
-                         // Position stickers on the frame (border area)
-                         const framePositions = [
-                           { top: '-10px', left: '10px' },      // Top-left corner of frame
-                           { top: '-10px', right: '10px' },     // Top-right corner of frame
-                           { bottom: '-10px', left: '10px' },    // Bottom-left corner of frame
-                           { bottom: '-10px', right: '10px' }   // Bottom-right corner of frame
+                        {/* Apply selected stickers on the frame */}
+                       {selectedStickers.map((sticker, stickerIndex) => {
+                         // Authentic sticker positions that overlap the photos and frame naturally
+                         const stickerPositions = [
+                           { top: '-15px', left: '-10px', transform: 'rotate(-15deg)' },
+                           { bottom: '-20px', right: '-5px', transform: 'rotate(20deg)' },
+                           { top: '40%', left: '-25px', transform: 'rotate(-5deg)' },
+                           { top: '-15px', right: '10px', transform: 'rotate(12deg)' },
+                           { bottom: '-10px', left: '20px', transform: 'rotate(-25deg)' },
+                           { bottom: '30%', right: '-20px', transform: 'rotate(15deg)' },
                          ];
+                         
+                         // Determine which photo this sticker should attach to based on its index
+                         if (stickerIndex % 4 !== index) return null;
+                         
+                         const pos = stickerPositions[stickerIndex % stickerPositions.length];
                          
                          return (
                            <div 
@@ -129,10 +136,8 @@ export default function CustomizePage({
                              className={`sticker-overlay ${sticker}`}
                              style={{
                                position: 'absolute',
-                               ...framePositions[index] || framePositions[0],
-                               fontSize: '24px',
+                               ...pos,
                                zIndex: 10,
-                               color: '#333'
                              }}
                            >
                              {getStickerEmoji(sticker)}
@@ -191,11 +196,14 @@ export default function CustomizePage({
                   <button
                     key={sticker}
                     className={`sticker-option ${selectedStickers.includes(sticker) ? 'selected' : ''}`}
-                                         onClick={() => {
+                     onClick={() => {
                        if (selectedStickers.includes(sticker)) {
-                         setSelectedStickers([]);
+                         setSelectedStickers(selectedStickers.filter(s => s !== sticker));
                        } else {
-                         setSelectedStickers([sticker]); // Only one sticker at a time
+                         // Allow up to 6 stickers for a nice look
+                         if (selectedStickers.length < 6) {
+                           setSelectedStickers([...selectedStickers, sticker]);
+                         }
                        }
                      }}
                   >
@@ -243,28 +251,45 @@ export default function CustomizePage({
               // Create a canvas to combine photos and frame
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
-              canvas.width = 400;
-              canvas.height = 600;
+              
+              // Maintain 4:3 aspect ratio for photos on the canvas
+              const padding = 30;
+              const spacing = 20;
+              const photoWidth = 540; // High quality width
+              const photoHeight = 405; // 4:3 aspect ratio (540 * 3/4)
+              const footerHeight = 80;
+              
+              const totalPhotos = Math.min(capturedPhotos.length, 4);
+              canvas.width = photoWidth + (padding * 2);
+              canvas.height = padding + (totalPhotos * photoHeight) + ((totalPhotos - 1) * spacing) + footerHeight;
               
               // Set frame color
               const frameColor = frameColors.find(c => c.id === selectedFrameColor)?.color || '#ffffff';
               if (frameColor.includes('gradient')) {
                 const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-                gradient.addColorStop(0, '#ff6b9d');
-                gradient.addColorStop(1, '#4ecdc4');
+                gradient.addColorStop(0, '#ffb7c5');
+                gradient.addColorStop(1, '#ffe4e1');
                 ctx.fillStyle = gradient;
               } else {
                 ctx.fillStyle = frameColor;
               }
               ctx.fillRect(0, 0, canvas.width, canvas.height);
               
+              // Helper to draw heart shape
+              const drawHeart = (ctx, x, y, width, height) => {
+                ctx.beginPath();
+                const topCurveHeight = height * 0.3;
+                ctx.moveTo(x + width / 2, y + topCurveHeight);
+                ctx.bezierCurveTo(x + width / 2, y, x, y, x, y + topCurveHeight);
+                ctx.bezierCurveTo(x, y + (height + topCurveHeight) / 2, x + width / 2, y + height, x + width / 2, y + height);
+                ctx.bezierCurveTo(x + width / 2, y + height, x + width, y + (height + topCurveHeight) / 2, x + width, y + topCurveHeight);
+                ctx.bezierCurveTo(x + width, y, x + width / 2, y, x + width / 2, y + topCurveHeight);
+                ctx.closePath();
+              };
+
               // Add photos with stickers
-              const photoHeight = 120;
-              const photoWidth = 360;
-              const spacing = 20;
-              
-              for (let i = 0; i < Math.min(capturedPhotos.length, 4); i++) {
-                const y = spacing + (i * (photoHeight + spacing));
+              for (let i = 0; i < totalPhotos; i++) {
+                const y = padding + (i * (photoHeight + spacing));
                 
                 // Create photo image
                 const img = new Image();
@@ -274,37 +299,40 @@ export default function CustomizePage({
                   img.onload = () => {
                     // Draw photo
                     ctx.save();
-                    ctx.beginPath();
                     
                     // Apply shape clipping
                     if (selectedShape === 'circle') {
-                      ctx.arc(spacing + photoWidth/2, y + photoHeight/2, photoHeight/2, 0, 2 * Math.PI);
+                      ctx.beginPath();
+                      ctx.arc(padding + photoWidth/2, y + photoHeight/2, photoHeight/2, 0, 2 * Math.PI);
+                      ctx.clip();
                     } else if (selectedShape === 'heart') {
-                      // Heart shape approximation
-                      ctx.arc(spacing + photoWidth/2, y + photoHeight/2, photoHeight/2, 0, 2 * Math.PI);
+                      drawHeart(ctx, padding, y, photoWidth, photoHeight);
+                      ctx.clip();
                     } else {
-                      ctx.rect(spacing, y, photoWidth, photoHeight);
+                      // Round rect for square
+                      ctx.beginPath();
+                      ctx.roundRect ? ctx.roundRect(padding, y, photoWidth, photoHeight, 16) : ctx.rect(padding, y, photoWidth, photoHeight);
+                      ctx.clip();
                     }
                     
-                    ctx.clip();
-                    ctx.drawImage(img, spacing, y, photoWidth, photoHeight);
+                    // Draw image keeping aspect ratio (cover)
+                    const imgRatio = img.width / img.height;
+                    const boxRatio = photoWidth / photoHeight;
+                    let drawWidth = photoWidth;
+                    let drawHeight = photoHeight;
+                    let drawX = padding;
+                    let drawY = y;
+                    
+                    if (imgRatio > boxRatio) {
+                      drawWidth = photoHeight * imgRatio;
+                      drawX = padding - (drawWidth - photoWidth) / 2;
+                    } else {
+                      drawHeight = photoWidth / imgRatio;
+                      drawY = y - (drawHeight - photoHeight) / 2;
+                    }
+                    
+                    ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
                     ctx.restore();
-                    
-                    // Add sticker on the frame (border area)
-                    if (selectedStickers.length > 0) {
-                      const sticker = selectedStickers[0]; // Only one sticker
-                      const frameStickerPositions = [
-                        { x: 5, y: 15 },                    // Top-left corner of frame
-                        { x: canvas.width - 25, y: 15 },    // Top-right corner of frame
-                        { x: 5, y: canvas.height - 25 },     // Bottom-left corner of frame
-                        { x: canvas.width - 25, y: canvas.height - 25 } // Bottom-right corner of frame
-                      ];
-                      
-                      const position = frameStickerPositions[i] || frameStickerPositions[0];
-                      ctx.font = '24px Arial';
-                      ctx.fillStyle = '#333';
-                      ctx.fillText(getStickerEmoji(sticker), position.x, position.y);
-                    }
                     
                     resolve();
                   };
@@ -312,16 +340,48 @@ export default function CustomizePage({
                 });
               }
               
+              // Draw stickers after all photos to ensure they overlay correctly
+              selectedStickers.forEach((sticker, index) => {
+                const stickerPositions = [
+                  { dx: -20, dy: -25, r: -15 * Math.PI / 180 },
+                  { dx: photoWidth - 10, dy: photoHeight - 30, r: 20 * Math.PI / 180 },
+                  { dx: -35, dy: photoHeight / 2 - 20, r: -5 * Math.PI / 180 },
+                  { dx: photoWidth - 15, dy: -20, r: 12 * Math.PI / 180 },
+                  { dx: 20, dy: photoHeight - 15, r: -25 * Math.PI / 180 },
+                  { dx: photoWidth - 40, dy: photoHeight / 2 + 30, r: 15 * Math.PI / 180 },
+                ];
+                
+                const photoIndex = index % totalPhotos;
+                const pos = stickerPositions[index % stickerPositions.length];
+                const y = padding + (photoIndex * (photoHeight + spacing));
+                
+                ctx.save();
+                ctx.translate(padding + pos.dx, y + pos.dy);
+                ctx.rotate(pos.r);
+                ctx.font = '64px Arial';
+                ctx.fillStyle = '#333';
+                
+                // Add soft shadow to stickers
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 8;
+                ctx.shadowOffsetX = 3;
+                ctx.shadowOffsetY = 3;
+                
+                ctx.fillText(getStickerEmoji(sticker), 0, 0);
+                ctx.restore();
+              });
+              
               // Add photobooth text
               ctx.fillStyle = '#333';
-              ctx.font = 'bold 16px Arial';
+              ctx.font = '800 24px system-ui, sans-serif';
               ctx.textAlign = 'center';
-              ctx.fillText('photobooth', canvas.width/2, canvas.height - 10);
+              ctx.letterSpacing = '4px';
+              ctx.fillText('PHOTOBOOTH', canvas.width/2, canvas.height - 30);
               
               // Download
               const link = document.createElement('a');
               link.download = `photobooth-${Date.now()}.png`;
-              link.href = canvas.toDataURL();
+              link.href = canvas.toDataURL('image/png', 1.0);
               link.click();
             }}
           >
